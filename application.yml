@@ -1,0 +1,16 @@
+datasources:
+  default:
+    url: jdbc:postgresql://localhost:5432/postgres
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    dialect: POSTGRES
+
+jpa:
+  default:
+    entity-scan:
+      packages: 'ru.company.domain'
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
