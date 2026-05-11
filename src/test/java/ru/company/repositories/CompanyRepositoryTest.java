@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.company.domain.Company;
+import ru.company.domain.Employee;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -54,7 +55,7 @@ class CompanyRepositoryTest {
     }
 
     @Test
-    void testDeleteEmployee() {
+    void testDelete() {
         Company saved = companyRepository.save(Company.builder()
                 .name("Delete Repository Company")
                 .build());
@@ -64,17 +65,21 @@ class CompanyRepositoryTest {
         assertFalse(companyRepository.existsById(saved.getId()));
     }
 
-
-
     @Test
-    void testDeleteWith() {
+    void testDeleteWithEmployee() {
         Company saved = companyRepository.save(Company.builder()
                 .name("Delete Repository Company")
+                .build());
+        Employee employee = employeeRepository.save(Employee.builder()
+                .name("Delete Repository Employee")
+                .age(30)
+                .company(saved)
                 .build());
 
         companyRepository.delete(saved);
 
         assertFalse(companyRepository.existsById(saved.getId()));
+        assertFalse(employeeRepository.existsById(employee.getId()));
     }
 
     @Test
