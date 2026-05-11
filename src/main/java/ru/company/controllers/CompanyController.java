@@ -1,15 +1,12 @@
 package ru.company.controllers;
 
-import ru.company.domain.Company;
 import ru.company.dto.CompanyDto;
 import ru.company.mappers.CompanyMapper;
-import ru.company.repositories.CompanyRepository;
-import ru.company.repositories.EmployeeRepository;
+import ru.company.services.CompanyService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,54 +16,42 @@ import java.util.stream.Collectors;
 public class CompanyController {
 
     @Inject
-    CompanyRepository companyRepository;
+    CompanyService companyService;
 
     @Inject
     CompanyMapper companyMapper;
 
-    @Inject
-    EmployeeRepository employeeRepository;
-
     @Post
     public CompanyDto create(@Body @Valid CompanyDto dto) {
-        Company saved = companyRepository.save(companyMapper.toEntity(dto));
-        return companyMapper.toDto(saved);
+        return companyMapper.toDto(companyService.create(companyMapper.toEntity(dto)));
     }
 
     @Get
     public List<CompanyDto> getAll() {
-        return companyRepository.findAll().stream()
+        return companyService.findAll().stream()
                 .map(companyMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Get("/{id}")
     public HttpResponse<CompanyDto> getById(@PathVariable UUID id) {
-        return companyRepository.findById(id)
+        return companyService.findById(id)
                 .map(company -> HttpResponse.ok(companyMapper.toDto(company)))
                 .orElseGet(HttpResponse::notFound);
     }
 
     @Put("/{id}")
     public HttpResponse<CompanyDto> update(@PathVariable UUID id, @Body @Valid CompanyDto dto) {
-        return companyRepository.findById(id)
-                .map(company -> {
-                    company.setName(dto.getName());
-                    Company updated = companyRepository.update(company);
-                    return HttpResponse.ok(companyMapper.toDto(updated));
-                })
+        return companyService.update(id, companyMapper.toEntity(dto))
+                .map(company -> HttpResponse.ok(companyMapper.toDto(company)))
                 .orElseGet(HttpResponse::notFound);
     }
 
     @Delete("/{id}")
-    @Transactional
     public HttpResponse<?> delete(@PathVariable UUID id) {
-        return companyRepository.findById(id)
-                .map(company -> {
-                    employeeRepository.deleteByCompanyId(company.getId());
-                    companyRepository.delete(company);
-                    return HttpResponse.noContent();
-                })
-                .orElseGet(HttpResponse::notFound);
+        if (companyService.delete(id)) {
+            return HttpResponse.noContent();
+        }
+        return HttpResponse.notFound();
     }
 }
