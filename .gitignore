@@ -5,6 +5,8 @@ gradle/
 build/
 target/
 out/
+frontend/node_modules/
+frontend/dist/
 .micronaut/
 .idea
 *.iml
@@ -14,6 +16,3 @@ out/
 .settings
 .classpath
 .factorypath
-micronaut-cli.yml
-gradlew
-gradlew.bat
