@@ -3,6 +3,7 @@ import { EmptyState } from './common/EmptyState';
 import { PanelHeader } from './common/PanelHeader';
 
 export function EmployeePanel({
+  activeCompanyId,
   companies,
   companyById,
   employeeEditId,
@@ -14,6 +15,7 @@ export function EmployeePanel({
   onEdit,
   onFormChange,
   onResetEdit,
+  onSelectCompany,
   onSubmit,
   visibleEmployees,
 }) {
@@ -62,6 +64,26 @@ export function EmployeePanel({
           </button>
         )}
       </form>
+
+      <div className="filter-strip">
+        <button
+          type="button"
+          className={activeCompanyId === 'all' ? 'chip active' : 'chip'}
+          onClick={() => onSelectCompany('all')}
+        >
+          Все
+        </button>
+        {companies.map((company) => (
+          <button
+            type="button"
+            key={company.id}
+            className={activeCompanyId === company.id ? 'chip active' : 'chip'}
+            onClick={() => onSelectCompany(company.id)}
+          >
+            {company.name}
+          </button>
+        ))}
+      </div>
 
       <div className="table-wrap">
         <table>

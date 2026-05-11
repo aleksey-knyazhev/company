@@ -175,7 +175,6 @@ export function App() {
 
       <section className="workspace-grid">
         <CompanyPanel
-          activeCompanyId={activeCompanyId}
           companies={companies}
           companyEditId={companyEditId}
           companyError={companyError}
@@ -187,11 +186,11 @@ export function App() {
           onEdit={startCompanyEdit}
           onFormChange={setCompanyForm}
           onResetEdit={resetCompanyEdit}
-          onSelectCompany={setActiveCompanyId}
           onSubmit={submitCompany}
         />
 
         <EmployeePanel
+          activeCompanyId={activeCompanyId}
           companies={companies}
           companyById={companyById}
           employeeEditId={employeeEditId}
@@ -203,6 +202,7 @@ export function App() {
           onEdit={startEmployeeEdit}
           onFormChange={setEmployeeForm}
           onResetEdit={resetEmployeeEdit}
+          onSelectCompany={setActiveCompanyId}
           onSubmit={submitEmployee}
           visibleEmployees={visibleEmployees}
         />
