@@ -252,10 +252,6 @@ INNER JOIN cte_count_employee cce
 
 ![Основной экран UI](docs/screenshots/ui-main.png)
 
-Отчёт по сотрудникам:
-
-![Отчёт по сотрудникам](docs/screenshots/ui-report.png)
-
 ## Тесты
 
 Проект покрыт тестами по основным слоям.
