@@ -269,6 +269,18 @@ INNER JOIN cte_count_employee cce
 
 В разделе `Сотрудники` есть переключатели организаций. При выборе конкретной организации таблица сотрудников показывает только сотрудников с соответствующим `companyId`. Кнопка `Все` возвращает отображение полного списка сотрудников.
 
+Технический endpoint Prometheus:
+
+![Prometheus endpoint](docs/screenshots/prometheus.png)
+
+Скриншот показывает вывод endpoint `http://localhost:8080/prometheus`. Это технический endpoint Micronaut/Micrometer, который отдаёт метрики приложения в формате Prometheus. Prometheus забирает эти данные по scrape target `company-app`.
+
+Графический интерфейс Grafana:
+
+![Grafana dashboard](docs/screenshots/grafana.png)
+
+Скриншот показывает Grafana UI для мониторинга метрик приложения. Dashboard описан в `grafana/dashboards/company-http.json`, а datasource Prometheus подключается через provisioning-файл `grafana/provisioning/datasources/prometheus.yml`.
+
 ## Тесты
 
 Проект покрыт тестами по основным слоям.
