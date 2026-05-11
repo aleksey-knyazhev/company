@@ -4,10 +4,12 @@ import ru.company.domain.Company;
 import ru.company.dto.CompanyDto;
 import ru.company.mappers.CompanyMapper;
 import ru.company.repositories.CompanyRepository;
+import ru.company.repositories.EmployeeRepository;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +23,9 @@ public class CompanyController {
 
     @Inject
     CompanyMapper companyMapper;
+
+    @Inject
+    EmployeeRepository employeeRepository;
 
     @Post
     public CompanyDto create(@Body @Valid CompanyDto dto) {
@@ -54,9 +59,11 @@ public class CompanyController {
     }
 
     @Delete("/{id}")
+    @Transactional
     public HttpResponse<?> delete(@PathVariable UUID id) {
         return companyRepository.findById(id)
                 .map(company -> {
+                    employeeRepository.deleteByCompanyId(company.getId());
                     companyRepository.delete(company);
                     return HttpResponse.noContent();
                 })

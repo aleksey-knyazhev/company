@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository("default")
 public interface EmployeeRepository extends CrudRepository<Employee, UUID> {
+    void deleteByCompanyId(UUID companyId);
 }
