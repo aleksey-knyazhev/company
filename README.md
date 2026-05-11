@@ -269,6 +269,24 @@ INNER JOIN cte_count_employee cce
 
 В разделе `Сотрудники` есть переключатели организаций. При выборе конкретной организации таблица сотрудников показывает только сотрудников с соответствующим `companyId`. Кнопка `Все` возвращает отображение полного списка сотрудников.
 
+Схема базы данных:
+
+![Схема базы данных](docs/screenshots/schema.png)
+
+Скриншот показывает структуру схемы `company`: таблицы `companies` и `employees`, а также связь сотрудников с компаниями через `employees.company_id`. В JPA эта связь описана в `Employee` как `@ManyToOne(fetch = FetchType.LAZY)`. На уровне БД внешний ключ настроен с `ON DELETE CASCADE`, поэтому при удалении родительской записи `companies` подчинённые записи из `employees` удаляются автоматически.
+
+Таблица компаний:
+
+![Таблица компаний](docs/screenshots/companies.png)
+
+Скриншот показывает данные таблицы `company.companies`.
+
+Таблица сотрудников:
+
+![Таблица сотрудников](docs/screenshots/employees.png)
+
+Скриншот показывает данные таблицы `company.employees`, включая внешний ключ `company_id`.
+
 Технический endpoint Prometheus:
 
 ![Prometheus endpoint](docs/screenshots/prometheus.png)
