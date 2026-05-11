@@ -103,6 +103,10 @@ h1 {
   background: #ffffff;
 }
 
+.report-panel {
+  margin-top: 16px;
+}
+
 .panel-header {
   display: flex;
   align-items: center;

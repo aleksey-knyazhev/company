@@ -204,6 +204,29 @@ function App() {
     return employees.filter((employee) => employee.companyId === activeCompanyId);
   }, [activeCompanyId, employees]);
 
+  const employeeCountRows = useMemo(() => {
+    const grouped = employees.reduce((acc, employee) => {
+      const key = `${employee.companyId}:${employee.age}`;
+      const existing = acc[key] || {
+        companyId: employee.companyId,
+        age: employee.age,
+        countEmployee: 0,
+      };
+      existing.countEmployee += 1;
+      acc[key] = existing;
+      return acc;
+    }, {});
+
+    return Object.values(grouped)
+      .map((row) => ({
+        ...row,
+        companyName: companyById[row.companyId]?.name || 'Не найдена',
+      }))
+      .sort((first, second) => (
+        first.companyName.localeCompare(second.companyName, 'ru') || Number(first.age) - Number(second.age)
+      ));
+  }, [companyById, employees]);
+
   const totalAge = employees.reduce((sum, employee) => sum + Number(employee.age || 0), 0);
   const averageAge = employees.length === 0 ? 0 : Math.round(totalAge / employees.length);
 
@@ -437,6 +460,35 @@ function App() {
             </table>
             {visibleEmployees.length === 0 && <EmptyState title="Сотрудников по фильтру нет" />}
           </div>
+        </div>
+      </section>
+
+      <section className="panel report-panel">
+        <PanelHeader
+          title="Сотрудники по компаниям и возрасту"
+          loading={companiesLoading || employeesLoading}
+          actionLabel="Результат CTE-запроса"
+        />
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Компания</th>
+                <th>Возраст</th>
+                <th className="right">Количество</th>
+              </tr>
+            </thead>
+            <tbody>
+              {employeeCountRows.map((row) => (
+                <tr key={`${row.companyId}:${row.age}`}>
+                  <td>{row.companyName}</td>
+                  <td>{row.age}</td>
+                  <td className="right">{row.countEmployee}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {employeeCountRows.length === 0 && <EmptyState title="Нет данных для отчёта" />}
         </div>
       </section>
     </main>
