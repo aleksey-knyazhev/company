@@ -36,6 +36,8 @@ export function App() {
   const [companyEditId, setCompanyEditId] = useState('');
   const [employeeForm, setEmployeeForm] = useState(emptyEmployeeForm);
   const [employeeEditId, setEmployeeEditId] = useState('');
+  const [companyValidationError, setCompanyValidationError] = useState('');
+  const [employeeValidationError, setEmployeeValidationError] = useState('');
 
   useEffect(() => {
     dispatch(fetchCompanies());
@@ -92,8 +94,10 @@ export function App() {
     event.preventDefault();
     const name = companyForm.name.trim();
     if (!name) {
+      setCompanyValidationError('Введите название компании');
       return;
     }
+    setCompanyValidationError('');
 
     if (companyEditId) {
       await dispatch(updateCompany({ id: companyEditId, name }));
@@ -107,11 +111,25 @@ export function App() {
   const submitEmployee = async (event) => {
     event.preventDefault();
     const name = employeeForm.name.trim();
-    const age = Number(employeeForm.age);
+    const ageValue = String(employeeForm.age).trim();
+    const age = Number(ageValue);
     const companyId = employeeForm.companyId;
-    if (!name || !age || !companyId) {
+    const errors = [];
+    if (!name) {
+      errors.push('Введите имя сотрудника');
+    }
+    if (!ageValue) {
+      errors.push('Введите возраст сотрудника');
+    }
+    if (errors.length > 0) {
+      setEmployeeValidationError(errors.join('\n'));
       return;
     }
+    if (!companyId) {
+      setEmployeeValidationError('Выберите компанию сотрудника');
+      return;
+    }
+    setEmployeeValidationError('');
 
     if (employeeEditId) {
       await dispatch(updateEmployee({ id: employeeEditId, name, age, companyId }));
@@ -125,11 +143,13 @@ export function App() {
   const resetCompanyEdit = () => {
     setCompanyEditId('');
     setCompanyForm(emptyCompanyForm);
+    setCompanyValidationError('');
   };
 
   const resetEmployeeEdit = () => {
     setEmployeeEditId('');
     setEmployeeForm({ ...emptyEmployeeForm, companyId: companies[0]?.id || '' });
+    setEmployeeValidationError('');
   };
 
   const startCompanyEdit = (company) => {
@@ -177,14 +197,20 @@ export function App() {
         <CompanyPanel
           companies={companies}
           companyEditId={companyEditId}
-          companyError={companyError}
+          companyError={companyValidationError || companyError}
           companyForm={companyForm}
           employees={employees}
           loading={companiesLoading}
-          onClearError={() => dispatch(clearCompanyError())}
+          onClearError={() => {
+            setCompanyValidationError('');
+            dispatch(clearCompanyError());
+          }}
           onDelete={removeCompany}
           onEdit={startCompanyEdit}
-          onFormChange={setCompanyForm}
+          onFormChange={(form) => {
+            setCompanyValidationError('');
+            setCompanyForm(form);
+          }}
           onResetEdit={resetCompanyEdit}
           onSubmit={submitCompany}
         />
@@ -194,13 +220,19 @@ export function App() {
           companies={companies}
           companyById={companyById}
           employeeEditId={employeeEditId}
-          employeeError={employeeError}
+          employeeError={employeeValidationError || employeeError}
           employeeForm={employeeForm}
           loading={employeesLoading}
-          onClearError={() => dispatch(clearEmployeeError())}
+          onClearError={() => {
+            setEmployeeValidationError('');
+            dispatch(clearEmployeeError());
+          }}
           onDelete={(id) => dispatch(deleteEmployee(id))}
           onEdit={startEmployeeEdit}
-          onFormChange={setEmployeeForm}
+          onFormChange={(form) => {
+            setEmployeeValidationError('');
+            setEmployeeForm(form);
+          }}
           onResetEdit={resetEmployeeEdit}
           onSelectCompany={setActiveCompanyId}
           onSubmit={submitEmployee}

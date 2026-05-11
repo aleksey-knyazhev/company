@@ -301,6 +301,10 @@ tbody tr:last-child td {
   font-size: 14px;
 }
 
+.alert span {
+  white-space: pre-line;
+}
+
 .alert button {
   min-height: 32px;
   color: #76202a;
