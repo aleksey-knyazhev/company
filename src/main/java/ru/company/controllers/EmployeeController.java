@@ -10,6 +10,7 @@ import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import ru.company.domain.Company;
 import ru.company.domain.Employee;
 import ru.company.dto.EmployeeDto;
 import ru.company.mappers.EmployeeMapper;
@@ -34,12 +35,14 @@ public class EmployeeController {
 
     @Post
     public HttpResponse<EmployeeDto> create(@Body @Valid EmployeeDto dto) {
-        if (!companyRepository.existsById(dto.getCompanyId())) {
-            return HttpResponse.notFound();
-        }
-
-        Employee saved = employeeRepository.save(employeeMapper.toEntity(dto));
-        return HttpResponse.ok(employeeMapper.toDto(saved));
+        return companyRepository.findById(dto.getCompanyId())
+                .map(company -> {
+                    Employee employee = employeeMapper.toEntity(dto);
+                    employee.setCompany(company);
+                    Employee saved = employeeRepository.save(employee);
+                    return HttpResponse.ok(employeeMapper.toDto(saved));
+                })
+                .orElseGet(HttpResponse::notFound);
     }
 
     @Get
@@ -58,7 +61,8 @@ public class EmployeeController {
 
     @Put("/{id}")
     public HttpResponse<EmployeeDto> update(@PathVariable UUID id, @Body @Valid EmployeeDto dto) {
-        if (!companyRepository.existsById(dto.getCompanyId())) {
+        Company company = companyRepository.findById(dto.getCompanyId()).orElse(null);
+        if (company == null) {
             return HttpResponse.notFound();
         }
 
@@ -66,7 +70,7 @@ public class EmployeeController {
                 .map(employee -> {
                     employee.setName(dto.getName());
                     employee.setAge(dto.getAge());
-                    employee.setCompanyId(dto.getCompanyId());
+                    employee.setCompany(company);
                     Employee updated = employeeRepository.update(employee);
                     return HttpResponse.ok(employeeMapper.toDto(updated));
                 })
