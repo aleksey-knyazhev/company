@@ -13,6 +13,8 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import ru.company.dto.CompanyDto;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,6 +29,9 @@ class CompanyControllerTest {
     @Inject
     @Client("/")
     HttpClient client;
+
+    @Inject
+    DataSource dataSource;
 
     @Test
     void testCreateCompany() {
@@ -89,5 +94,22 @@ class CompanyControllerTest {
                 () -> client.toBlocking().exchange(HttpRequest.GET("/companies/" + created.getId()), CompanyDto.class)
         );
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+    }
+
+    @Test
+    void testLiquibaseTablesCreatedInCompanySchema() throws SQLException {
+        String sql = """
+                SELECT count(*)
+                FROM information_schema.tables
+                WHERE table_schema = 'company'
+                  AND table_name IN ('databasechangelog', 'databasechangeloglock')
+                """;
+
+        try (var connection = dataSource.getConnection();
+             var statement = connection.createStatement();
+             var resultSet = statement.executeQuery(sql)) {
+            assertTrue(resultSet.next());
+            assertEquals(2, resultSet.getInt(1));
+        }
     }
 }
