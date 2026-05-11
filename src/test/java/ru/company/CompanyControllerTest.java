@@ -29,8 +29,20 @@ class CompanyControllerTest {
     HttpClient client;
 
     @Test
+    void testCreateCompany() {
+        CompanyDto created = createCompany("Create Company");
+        assertNotNull(created.getId());
+    }
+
+    private CompanyDto createCompany(String name) {
+        HttpResponse<CompanyDto> response = client.toBlocking()
+                .exchange(HttpRequest.POST("/companies", new CompanyDto(name)), CompanyDto.class);
+        return response.body();
+    }
+
+    @Test
     void testCreateAndListCompanies() {
-        CompanyDto dto = new CompanyDto("Test Company");
+        CompanyDto dto = new CompanyDto("Create and list Companies");
 
         MutableHttpRequest<CompanyDto> request = HttpRequest.POST("/companies", dto);
         HttpResponse<CompanyDto> response = client.toBlocking().exchange(request, CompanyDto.class);
@@ -38,36 +50,43 @@ class CompanyControllerTest {
         assertEquals(HttpStatus.OK, response.getStatus());
         CompanyDto saved = response.body();
         assertNotNull(saved.getId());
-        assertEquals("Test Company", saved.getName());
+        assertEquals("Create and list Companies", saved.getName());
 
         List<CompanyDto> companies = client.toBlocking()
                 .retrieve(HttpRequest.GET("/companies"), Argument.listOf(CompanyDto.class));
 
         assertFalse(companies.isEmpty());
-        assertTrue(companies.stream().anyMatch(c -> c.getName().equals("Test Company")));
+        assertTrue(companies.stream().anyMatch(c -> c.getName().equals("Create and list Companies")));
     }
 
     @Test
-    void testGetUpdateAndDeleteCompany() {
-        CompanyDto createDto = new CompanyDto("CRUD Company");
-        HttpResponse<CompanyDto> createResponse = client.toBlocking()
-                .exchange(HttpRequest.POST("/companies", createDto), CompanyDto.class);
-        CompanyDto created = createResponse.body();
-        assertNotNull(created.getId());
-
+    void testGetCompany() {
+        CompanyDto created = createCompany("Get Company");
         CompanyDto found = client.toBlocking()
                 .retrieve(HttpRequest.GET("/companies/" + created.getId()), CompanyDto.class);
-        assertEquals(created.getId(), found.getId());
-        assertEquals("CRUD Company", found.getName());
 
-        CompanyDto updateDto = new CompanyDto("Updated CRUD Company");
+        assertEquals(created.getId(), found.getId());
+        assertEquals("Get Company", found.getName());
+    }
+
+    @Test
+    void testUpdateCompany() {
+        CompanyDto created = createCompany("Update Company");
+        CompanyDto updateDto = new CompanyDto("Updated Company");
         HttpResponse<CompanyDto> updateResponse = client.toBlocking()
                 .exchange(HttpRequest.PUT("/companies/" + created.getId(), updateDto), CompanyDto.class);
-        assertEquals(HttpStatus.OK, updateResponse.getStatus());
-        assertEquals("Updated CRUD Company", updateResponse.body().getName());
 
+        assertEquals(HttpStatus.OK, updateResponse.getStatus());
+        assertEquals(created.getId(), updateResponse.body().getId());
+        assertEquals("Updated Company", updateResponse.body().getName());
+    }
+
+    @Test
+    void testDeleteCompany() {
+        CompanyDto created = createCompany("Delete Company");
         HttpResponse<?> deleteResponse = client.toBlocking()
                 .exchange(HttpRequest.DELETE("/companies/" + created.getId()));
+
         assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatus());
 
         HttpClientResponseException exception = assertThrows(
