@@ -37,20 +37,15 @@ class CompanyControllerTest {
     private CompanyDto createCompany(String name) {
         HttpResponse<CompanyDto> response = client.toBlocking()
                 .exchange(HttpRequest.POST("/companies", new CompanyDto(name)), CompanyDto.class);
+        assertEquals(HttpStatus.OK, response.getStatus());
         return response.body();
     }
 
     @Test
     void testCreateAndListCompanies() {
-        CompanyDto dto = new CompanyDto("Create and list Companies");
-
-        MutableHttpRequest<CompanyDto> request = HttpRequest.POST("/companies", dto);
-        HttpResponse<CompanyDto> response = client.toBlocking().exchange(request, CompanyDto.class);
-
-        assertEquals(HttpStatus.OK, response.getStatus());
-        CompanyDto saved = response.body();
-        assertNotNull(saved.getId());
-        assertEquals("Create and list Companies", saved.getName());
+        CompanyDto created = createCompany("Create and list Companies");
+        assertNotNull(created.getId());
+        assertEquals("Create and list Companies", created.getName());
 
         List<CompanyDto> companies = client.toBlocking()
                 .retrieve(HttpRequest.GET("/companies"), Argument.listOf(CompanyDto.class));
