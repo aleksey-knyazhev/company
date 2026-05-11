@@ -1,4 +1,4 @@
-package ru.company;
+package ru.company.controllers;
 
 import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
