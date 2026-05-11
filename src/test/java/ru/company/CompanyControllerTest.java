@@ -6,6 +6,7 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MutableHttpRequest;
 import io.micronaut.http.client.HttpClient;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -17,6 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @MicronautTest(environments = "test")
@@ -43,5 +45,35 @@ class CompanyControllerTest {
 
         assertFalse(companies.isEmpty());
         assertTrue(companies.stream().anyMatch(c -> c.getName().equals("Test Company")));
+    }
+
+    @Test
+    void testGetUpdateAndDeleteCompany() {
+        CompanyDto createDto = new CompanyDto("CRUD Company");
+        HttpResponse<CompanyDto> createResponse = client.toBlocking()
+                .exchange(HttpRequest.POST("/companies", createDto), CompanyDto.class);
+        CompanyDto created = createResponse.body();
+        assertNotNull(created.getId());
+
+        CompanyDto found = client.toBlocking()
+                .retrieve(HttpRequest.GET("/companies/" + created.getId()), CompanyDto.class);
+        assertEquals(created.getId(), found.getId());
+        assertEquals("CRUD Company", found.getName());
+
+        CompanyDto updateDto = new CompanyDto("Updated CRUD Company");
+        HttpResponse<CompanyDto> updateResponse = client.toBlocking()
+                .exchange(HttpRequest.PUT("/companies/" + created.getId(), updateDto), CompanyDto.class);
+        assertEquals(HttpStatus.OK, updateResponse.getStatus());
+        assertEquals("Updated CRUD Company", updateResponse.body().getName());
+
+        HttpResponse<?> deleteResponse = client.toBlocking()
+                .exchange(HttpRequest.DELETE("/companies/" + created.getId()));
+        assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatus());
+
+        HttpClientResponseException exception = assertThrows(
+                HttpClientResponseException.class,
+                () -> client.toBlocking().exchange(HttpRequest.GET("/companies/" + created.getId()), CompanyDto.class)
+        );
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     }
 }
