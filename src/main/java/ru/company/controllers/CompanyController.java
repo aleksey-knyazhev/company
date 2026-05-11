@@ -1,5 +1,6 @@
 package ru.company.controllers;
 
+import ru.company.domain.Company;
 import ru.company.dto.CompanyDto;
 import ru.company.mappers.CompanyMapper;
 import ru.company.repositories.CompanyRepository;
@@ -8,7 +9,6 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Controller("/companies")
 public class CompanyController {
@@ -21,17 +21,13 @@ public class CompanyController {
 
     @Post
     public CompanyDto create(@Body @Valid CompanyDto dto) {
-        // Превращаем DTO в Entity
-        var entity = companyMapper.toEntity(dto);
-        // Сохраняем (UUID сгенерируется автоматически Hibernate-ом)
-        var saved = companyRepository.save(entity);
-        // Возвращаем сохраненный объект обратно в виде DTO
+        Company saved = companyRepository.save(companyMapper.toEntity(dto));
         return companyMapper.toDto(saved);
     }
 
     @Get
     public List<CompanyDto> getAll() {
-        return StreamSupport.stream(companyRepository.findAll().spliterator(), false)
+        return companyRepository.findAll().stream()
                 .map(companyMapper::toDto)
                 .collect(Collectors.toList());
     }
