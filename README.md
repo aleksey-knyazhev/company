@@ -378,6 +378,14 @@ kubectl get pods
 kubectl get svc
 ```
 
+Kubernetes-манифесты:
+
+![Kubernetes manifests](docs/screenshots/kubernetes_manifests.png)
+
+Ресурсы Kubernetes после запуска:
+
+![Kubernetes resources](docs/screenshots/kubernetes_resources.png)
+
 Открыть приложение локально через port-forward:
 
 ```powershell
