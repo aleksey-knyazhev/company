@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: company-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: company-backend
+  template:
+    metadata:
+      labels:
+        app: company-backend
+    spec:
+      containers:
+        - name: company-backend
+          image: company-backend:0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATASOURCES_DEFAULT_URL
+              value: jdbc:postgresql://postgres:5432/postgres
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 20

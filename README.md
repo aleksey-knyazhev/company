@@ -355,6 +355,49 @@ Ctrl+C
 docker compose down
 ```
 
+## Kubernetes
+
+Kubernetes-манифесты лежат в каталоге `k8s/`.
+
+Собрать Docker images:
+
+```powershell
+cd C:\java\projects\micronaut\company
+docker build -t company-backend:0.1 .
+
+cd C:\java\projects\micronaut\company\frontend
+docker build -t company-frontend:0.1 .
+```
+
+Применить манифесты:
+
+```powershell
+cd C:\java\projects\micronaut\company
+kubectl apply -f k8s/
+kubectl get pods
+kubectl get svc
+```
+
+Открыть приложение локально через port-forward:
+
+```powershell
+kubectl port-forward svc/company-frontend 5173:80
+```
+
+Frontend будет доступен на:
+
+```text
+http://127.0.0.1:5173
+```
+
+Для прямого доступа к backend:
+
+```powershell
+kubectl port-forward svc/company-backend 8080:8080
+```
+
+Backend в Kubernetes подключается к PostgreSQL через service DNS `postgres:5432`.
+
 Проверить Prometheus targets:
 
 ```text
