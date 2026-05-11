@@ -2,11 +2,12 @@ package ru.company;
 
 import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MutableHttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import jakarta.inject.Inject;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import ru.company.dto.CompanyDto;
@@ -27,11 +28,10 @@ class CompanyControllerTest {
 
     @Test
     void testCreateAndListCompanies() {
-        CompanyDto dto = new CompanyDto();
-        dto.setName("Test Company");
+        CompanyDto dto = new CompanyDto("Test Company");
 
-        var request = HttpRequest.POST("/companies", dto);
-        var response = client.toBlocking().exchange(request, CompanyDto.class);
+        MutableHttpRequest<CompanyDto> request = HttpRequest.POST("/companies", dto);
+        HttpResponse<CompanyDto> response = client.toBlocking().exchange(request, CompanyDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatus());
         CompanyDto saved = response.body();
