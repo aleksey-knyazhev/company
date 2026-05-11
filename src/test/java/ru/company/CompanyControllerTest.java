@@ -6,17 +6,12 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import io.micronaut.test.support.TestPropertyProvider;
+import jakarta.inject.Inject;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.company.dto.CompanyDto;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -24,35 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @MicronautTest(environments = "test")
-@Testcontainers
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CompanyControllerTest implements TestPropertyProvider {
-
-    @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("company_test")
-            .withUsername("company")
-            .withPassword("company");
+class CompanyControllerTest {
 
     @Inject
     @Client("/")
     HttpClient client;
-
-    @Override
-    public Map<String, String> getProperties() {
-        if (!postgres.isRunning()) {
-            postgres.start();
-        }
-
-        return Map.of(
-                "datasources.default.url", postgres.getJdbcUrl(),
-                "datasources.default.driver-class-name", "org.postgresql.Driver",
-                "datasources.default.username", postgres.getUsername(),
-                "datasources.default.password", postgres.getPassword(),
-                "datasources.default.dialect", "POSTGRES",
-                "jpa.default.properties.hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect"
-        );
-    }
 
     @Test
     void testCreateAndListCompanies() {
