@@ -2,7 +2,7 @@
 
 Приложение для управления компаниями и сотрудниками.
 
-Стек backend: Java 21, Micronaut 4, Micronaut Data Hibernate JPA, PostgreSQL, Liquibase, MapStruct, Lombok, Micrometer/Prometheus.
+Стек backend: Java 21, Micronaut 4, Micronaut Data Hibernate JPA, PostgreSQL, Liquibase, MapStruct, Lombok, Prometheus, Grafana.
 
 Стек frontend: JavaScript, React, Redux Toolkit, HTML, CSS, Vite.
 
