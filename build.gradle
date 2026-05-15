@@ -29,6 +29,7 @@ dependencies {
     implementation("io.micronaut.liquibase:micronaut-liquibase")
     implementation("io.micronaut.micrometer:micronaut-micrometer-core")
     implementation("io.micronaut.micrometer:micronaut-micrometer-registry-prometheus")
+    implementation("org.quartz-scheduler:quartz:2.5.2")
     annotationProcessor("io.micronaut.validation:micronaut-validation-processor")
     implementation("io.micronaut.validation:micronaut-validation")
     implementation("jakarta.persistence:jakarta.persistence-api")
